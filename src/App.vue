@@ -1,6 +1,8 @@
 <template>
-	<Modal @click="modalFunc"
-		:title="title" :content="content" :price="price" :isModal="isModal" :img="img"></Modal>
+	<Transition name="fade">
+		<Modal @modalFunc="modalFunc"
+            :title="title" :content="content" :price="price" :isModal="isModal" :img="img"></Modal>
+	</Transition>
 
 	<!-- Nav Bar-->
 	<div class="menu">
@@ -10,7 +12,12 @@
 		</a>
 	</div>
 
-	<Discount></Discount>
+	<Discount
+		v-if="showDiscount" :percent="percent"></Discount>
+
+	<button @click="sortProduct">가격낮은정렬</button>
+	<button>되돌리기</button>
+
 	<Card
 		@modalFunc="modalFunc" @report="report"
 		v-for="(product, i) in oneroom" :key="i"
@@ -22,12 +29,18 @@ import oneroom from "./assets/oneroom";
 import Discount from "@/components/Discount.vue";
 import Modal from "@/components/Modal.vue";
 import Card from "@/components/Card.vue";
-
 export default {
     name: 'App',
+	computed: {
+	},
 	methods: {
+		sortProduct() {
+			this.oneroom.sort((a, b) => {
+				return a.price - b.price;
+			});
+		},
 		report(dataIndex) { // 신고 수
-			this.products[dataIndex].count++;s
+			this.oneroom[dataIndex].count++;
 		},
 		modalFunc(dataVal, dataId) {
 			if (dataVal === "open") {
@@ -42,8 +55,17 @@ export default {
 			}
 		}
 	},
+	mounted() {
+		setInterval(() => {
+			if (this.percent > 0) {
+				this.percent -= 1;
+			}
+		}, 1000);
+	},
 	data() {
 		return {
+			percent: 30,
+			showDiscount: true,
 			products: [{
 				img: require("./assets/room0.jpg"),
 				name:'역삼동원룸',
@@ -120,5 +142,32 @@ div {
 .button-box {
 	display: flex;
 	justify-content: center;
+}
+
+/* animation */
+.start {
+	opacity: 0; /* 투명도 */
+	transition: all 1s; /* 지연 */
+}
+.end {
+	opacity: 1;
+}
+.fade-enter-from {
+	opacity: 0;
+}
+.fade-enter-active {
+	transition: all 1s;
+}
+.fade-enter-to {
+	opacity: 1;
+}
+.fade-leave-from {
+	opacity: 0;
+}
+.fade-leave-active {
+	transition: all 1s;
+}
+.fade-leave-to {
+	opacity: 1;
 }
 </style>
